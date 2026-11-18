@@ -174,6 +174,7 @@
     }
     .save-btn { background: #34a853; color: #fff; }
     .del-btn { background: #ea4335; color: #fff; }
+    .nav-note-btn { background: #1a73e8; color: #fff; }
 
     .add-pin-hint {
       position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
@@ -638,12 +639,19 @@
     });
 
 
-    window.navigateTo = function(lat, lng) {
-      window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`, '_blank');
+    // Opens Google Maps directions from the user's current location to lat,lng
+    window.navigateTo = function(lat, lng, mode) {
+      const travel = mode || 'driving';   // driving | walking | transit | bicycling
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=${travel}`, '_blank');
     };
 
     // ===== Notes system =====
     const STORAGE_KEY = 'moothedam_notes_v1';
+    function esc(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
     let notes = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
     let noteMarkers = [];
     let addPinMode = false;
@@ -672,9 +680,18 @@
             iconSize: [28, 36], iconAnchor: [14, 36]
           })
         }).addTo(map);
-        m.bindPopup(`<strong>${n.title || 'Note'}</strong><br>${n.text || ''}<br><small>${n.lat.toFixed(5)}, ${n.lng.toFixed(5)}</small><br>
-          <button onclick="editNote(${idx})" style="margin-top:6px;padding:4px 8px">Edit</button>
-          <button onclick="deleteNote(${idx})" style="margin-top:6px;padding:4px 8px;background:#ea4335;color:white;border:none;border-radius:4px">Delete</button>`);
+        m.bindPopup(`<div class="popup-content">
+          <strong>${esc(n.title) || 'Note'}</strong><br>${esc(n.text)}<br>
+          <small>${n.lat.toFixed(5)}, ${n.lng.toFixed(5)}</small>
+          <div style="display:flex;gap:6px;margin-top:8px">
+            <button class="nav-btn" style="margin:0;flex:1" onclick="navigateTo(${n.lat}, ${n.lng})">🧭 Navigate</button>
+            <button class="nav-btn" style="margin:0;width:44px;background:#34a853" title="Walking" onclick="navigateTo(${n.lat}, ${n.lng}, 'walking')">🚶</button>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:6px">
+            <button onclick="editNote(${idx})" style="flex:1;padding:4px 8px">Edit</button>
+            <button onclick="deleteNote(${idx})" style="flex:1;padding:4px 8px;background:#ea4335;color:white;border:none;border-radius:4px">Delete</button>
+          </div>
+        </div>`);
         m.on('dragend', e => {
           const pos = e.target.getLatLng();
           notes[idx].lat = pos.lat; notes[idx].lng = pos.lng;
@@ -693,12 +710,13 @@
       list.innerHTML = notes.map((n, i) => `
         <div class="note-item">
           <div class="meta">${n.lat.toFixed(5)}, ${n.lng.toFixed(5)} · ${new Date(n.ts).toLocaleString()}</div>
-          <input type="text" value="${(n.title || '').replace(/"/g, '"')}" placeholder="Title"
+          <input type="text" value="${esc(n.title)}" placeholder="Title"
             onchange="updateNoteTitle(${i}, this.value)"
             style="width:100%;margin-bottom:4px;padding:4px;border:1px solid #ccc;border-radius:4px" />
-          <textarea onchange="updateNoteText(${i}, this.value)">${n.text || ''}</textarea>
+          <textarea onchange="updateNoteText(${i}, this.value)">${esc(n.text)}</textarea>
           <div class="note-actions">
             <button class="save-btn" onclick="flyToNote(${i})">Go to</button>
+            <button class="nav-note-btn" onclick="navigateTo(${n.lat}, ${n.lng})">🧭 Navigate</button>
             <button class="del-btn" onclick="deleteNote(${i})">Delete</button>
           </div>
         </div>`).join('');
@@ -742,6 +760,9 @@
       saveNotes();
       renderNoteMarkers();
       setPinMode(false);
+      // Open the new pin's popup so the Navigate button is right there
+      const last = noteMarkers[noteMarkers.length - 1];
+      if (last) last.openPopup();
     }
 
     document.getElementById('btnAddPin').onclick = () => {
