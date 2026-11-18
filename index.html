@@ -331,6 +331,14 @@
         const badgeClass = p.party === 'INC' ? 'badge-inc' :
                            p.party === 'IUML' ? 'badge-iuml' :
                            p.party === 'CPI(M)' ? 'badge-cpim' : 'badge-ind';
+        const tel = p.mobile ? String(p.mobile).replace(/\D/g, '') : '';
+        const wa  = p.whatsapp ? String(p.whatsapp).replace(/\D/g, '') : '';
+        const phoneBlock = tel ? `
+          <div class="popup-row"><span>Phone</span><a href="tel:+91${tel}" style="font-weight:600;color:#1a73e8;text-decoration:none">${tel}</a></div>
+          <div style="display:flex;gap:6px;margin-top:6px">
+            <a class="nav-btn" style="margin:0;flex:1;text-align:center;text-decoration:none;background:#34a853" href="tel:+91${tel}">📞 Call</a>
+            ${wa ? `<a class="nav-btn" style="margin:0;flex:1;text-align:center;text-decoration:none;background:#25d366" href="https://wa.me/91${wa}" target="_blank" rel="noopener">💬 WhatsApp</a>` : ''}
+          </div>` : '';
         return `<div class="popup-content">
           <h3>Ward ${p.ward_no || ''}: ${p.ward_name || p.name || ''}</h3>
           <span class="badge ${badgeClass}">${p.party_full || p.party || ''}</span>
@@ -341,6 +349,7 @@
           <div class="popup-row"><span>Symbol</span><span>${p.symbol || ''}</span></div>
           <div class="popup-row"><span>Ward Code</span><span>${p.ward_code || ''}</span></div>
           <div class="popup-row"><span>Voters</span><span>${p.total_pop || 0} (M:${p.males || 0} F:${p.females || 0})</span></div>
+          ${phoneBlock}
           <button class="nav-btn" onclick="navigateTo(${layer.getBounds().getCenter().lat}, ${layer.getBounds().getCenter().lng})">🧭 Navigate</button>
         </div>`;
       }
@@ -499,6 +508,7 @@
           { key: 'house', val: p.house || '', tag: 'House' },
           { key: 'code', val: p.ward_code || '', tag: 'Code' },
           { key: 'party', val: p.party_full || p.party || '', tag: 'Party' },
+          { key: 'mobile', val: p.mobile || '', tag: 'Phone' },
         ];
 
         for (const field of fields) {
