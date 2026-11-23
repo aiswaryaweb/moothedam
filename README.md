@@ -55,7 +55,7 @@ The map will automatically display them when present.
 ## Deploy on GitHub Pages
 
 1. Upload these to repo root:
-   - `index.html`, `wards_final.geojson`, `neighbors_final.geojson`
+   - `index.html`, `wards_final.geojson`, `neighbors_final.geojson`, `lines.geojson`
    - `manifest.webmanifest`, `sw.js`, `icons/` (needed for PWA install)
 2. Settings → Pages → Deploy from branch `main` / root
 3. Wait 1–2 minutes
@@ -73,3 +73,8 @@ Made with Leaflet.
 - Search bar + menu (pins, export/import), map type selector, share location, compass, GPS
 - On mobile an "Install app" prompt appears (Android Chrome); iPhone: Share → Add to Home Screen
 - After updating files, bump `CACHE` in `sw.js` so phones pick up the new version
+
+## Layers from QGIS
+
+- `wards_final.geojson` – ward polygons + Malayalam names (`ward_name_ml`) and QGIS fill colours (`color`)
+- `lines.geojson` – boundary lines and Aiswarya V lines (red); toggle them in the map-type sheet under *Map details*
