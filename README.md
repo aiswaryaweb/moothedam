@@ -54,10 +54,9 @@ The map will automatically display them when present.
 
 ## Deploy on GitHub Pages
 
-1. Upload the 3 files to repo root:
-   - `index.html`
-   - `wards_final.geojson`
-   - `neighbors_final.geojson`
+1. Upload these to repo root:
+   - `index.html`, `wards_final.geojson`, `neighbors_final.geojson`
+   - `manifest.webmanifest`, `sw.js`, `icons/` (needed for PWA install)
 2. Settings → Pages → Deploy from branch `main` / root
 3. Wait 1–2 minutes
 
@@ -67,3 +66,10 @@ Ward boundaries: Kerala Delimitation Commission 2024
 (via https://wardmap.ksmart.live / Vonter/kerala-wards)
 
 Made with Leaflet.
+
+## Google-Maps style UI & PWA
+
+- Opens at the Panchayat Office (`OFFICE` constant in `index.html` — set exact lat/lng there)
+- Search bar + menu (pins, export/import), map type selector, share location, compass, GPS
+- On mobile an "Install app" prompt appears (Android Chrome); iPhone: Share → Add to Home Screen
+- After updating files, bump `CACHE` in `sw.js` so phones pick up the new version

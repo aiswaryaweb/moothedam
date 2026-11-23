@@ -2,121 +2,73 @@
 <html lang="ml">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>മൂത്തേടം പഞ്ചായത്ത് · Interactive Map</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.css" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Moothedam Map" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; font-family: system-ui, -apple-system, sans-serif; overflow: hidden; }
     #map { height: 100%; width: 100%; }
 
-    /* Compact Google-Maps style top bar */
-    .topbar {
-      position: absolute; top: 0; left: 0; right: 0; z-index: 1000;
-      background: #fff; color: #202124;
-      padding: 8px 10px;
-      display: flex; align-items: center; justify-content: space-between;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-      gap: 6px;
-    }
-    .topbar h1 {
-      font-size: 0.9rem; font-weight: 600; white-space: nowrap;
-      overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;
-      max-width: 120px;
-    }
-    .topbar .sub { display: none; }
-
-    /* Search */
-    .search-wrap {
-      position: relative;
-      flex: 1;
-      min-width: 0;
-      max-width: 320px;
-    }
-    .search-wrap input {
-      width: 100%;
-      height: 36px;
-      border: 1px solid #dadce0;
-      border-radius: 20px;
-      padding: 0 36px 0 14px;
-      font-size: 0.88rem;
-      outline: none;
-      background: #f1f3f4;
-    }
-    .search-wrap input:focus {
-      background: #fff;
-      border-color: #1a73e8;
-      box-shadow: 0 1px 6px rgba(26,115,232,0.25);
-    }
-    .search-wrap .clear-btn {
-      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-      border: none; background: none; cursor: pointer; color: #5f6368;
-      font-size: 1.1rem; display: none; line-height: 1; padding: 4px;
-    }
-    .search-wrap.has-text .clear-btn { display: block; }
-    .search-results {
-      position: absolute; top: 42px; left: 0; right: 0;
-      background: #fff; border-radius: 10px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.18);
-      max-height: 280px; overflow-y: auto;
-      display: none; z-index: 1100;
-    }
-    .search-results.open { display: block; }
-    .search-item {
-      padding: 10px 12px; cursor: pointer;
-      border-bottom: 1px solid #f0f0f0;
-      font-size: 0.86rem;
-    }
-    .search-item:last-child { border-bottom: none; }
-    .search-item:hover, .search-item.active { background: #e8f0fe; }
-    .search-item .label { font-weight: 600; color: #202124; }
-    .search-item .meta { font-size: 0.78rem; color: #5f6368; margin-top: 2px; }
-    .search-item .tag {
-      display: inline-block; font-size: 0.68rem; padding: 1px 6px;
-      border-radius: 8px; background: #e8f0fe; color: #1a73e8; margin-right: 4px;
-    }
-    .search-empty { padding: 14px; color: #777; font-size: 0.85rem; text-align: center; }
-
-    /* Icon buttons – Google Maps style */
-    .icon-btn {
-      width: 40px; height: 40px; border-radius: 50%;
-      border: none; background: #fff;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.25);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem; cursor: pointer; flex-shrink: 0;
-      color: #5f6368;
-    }
-    .icon-btn:active, .icon-btn.active { background: #e8f0fe; color: #1a73e8; }
-    .icon-btn.primary { background: #1a73e8; color: #fff; }
-
-    .btn-group { display: flex; gap: 6px; }
-
-    /* Floating right-side controls — 4th zone of 5 vertical parts */
-    .fab-stack {
-      position: absolute;
-      top: 58%;
-      right: 14px;
-      transform: translateY(-50%);
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    /* Google Maps style location button */
-    .icon-btn.locate-btn {
-      background: #fff;
-      color: #1a73e8;
-    }
-    .icon-btn.locate-btn svg {
-      width: 22px; height: 22px;
-    }
-    .icon-btn.locate-btn.active,
-    .icon-btn.locate-btn:active {
-      background: #e8f0fe;
-      color: #1a73e8;
-    }
+    /* Google-Maps style UI */
+    .searchbar{position:absolute;z-index:1100;top:calc(10px + env(safe-area-inset-top));left:12px;right:12px;max-width:440px;height:48px;background:#fff;border-radius:24px;box-shadow:0 2px 6px rgba(60,64,67,.3),0 1px 2px rgba(60,64,67,.2);display:flex;align-items:center}
+    .searchbar input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font-size:16px;color:#202124;padding:0 4px;font-family:inherit}
+    .searchbar input::-webkit-search-cancel-button{display:none}
+    .sb-btn{width:46px;height:46px;border:0;background:none;display:flex;align-items:center;justify-content:center;color:#5f6368;cursor:pointer;flex-shrink:0;border-radius:50%}
+    .sb-btn svg,.fab svg{width:24px;height:24px;fill:currentColor}
+    .clear-btn{display:none}.searchbar.has-text .clear-btn{display:flex}.searchbar.has-text .search-ic{display:none}
+    .search-results{position:absolute;top:54px;left:0;right:0;background:#fff;border-radius:16px;box-shadow:0 4px 16px rgba(60,64,67,.3);max-height:min(60vh,420px);overflow-y:auto;display:none;padding:6px 0}
+    .search-results.open{display:block}
+    .search-item{padding:10px 16px 10px 58px;cursor:pointer;font-size:.9rem;position:relative}
+    .search-item::before{content:"";position:absolute;left:14px;top:50%;width:32px;height:32px;transform:translateY(-50%);border-radius:50%;background:#f1f3f4 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%235f6368' d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z'/%3E%3C/svg%3E") center/18px no-repeat}
+    .search-item:hover,.search-item.active{background:#f1f3f4}
+    .search-item .label{font-weight:500;color:#202124}
+    .search-item .meta{font-size:.78rem;color:#5f6368;margin-top:2px}
+    .search-item .tag{display:inline-block;font-size:.66rem;padding:1px 6px;border-radius:8px;background:#e8f0fe;color:#1a73e8;margin-right:6px}
+    .search-empty{padding:14px;color:#777;font-size:.85rem;text-align:center}
+    .fab{width:46px;height:46px;border:0;border-radius:50%;background:#fff;color:#5f6368;box-shadow:0 1px 4px rgba(60,64,67,.35);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .fab:active{background:#f1f3f4}.fab.on{color:#1a73e8}
+    .fab.busy svg{animation:pulse 1s infinite}@keyframes pulse{50%{opacity:.35}}
+    .layers-btn{position:absolute;z-index:1000;top:calc(70px + env(safe-area-inset-top));right:12px}
+    .fab-stack{position:absolute;z-index:1000;right:12px;bottom:calc(28px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}
+    body.ib .fab-stack{bottom:calc(112px + env(safe-area-inset-bottom))}
+    @media (hover:hover) and (pointer:fine){.fab-stack{bottom:96px}}
+    @media (pointer:coarse){.leaflet-control-zoom{display:none}}
+    #needle{transform-origin:12px 12px;transition:transform .15s linear}
+    .layer-sheet{position:absolute;z-index:1150;top:calc(70px + env(safe-area-inset-top));right:12px;width:min(300px,calc(100vw - 24px));background:#fff;border-radius:16px;box-shadow:0 4px 18px rgba(60,64,67,.4);padding:12px 14px 14px;display:none}
+    .layer-sheet.open{display:block}
+    .layer-sheet h3{font-size:.9rem;font-weight:500;color:#202124;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .layer-sheet h3 button{border:0;background:none;font-size:1.4rem;color:#5f6368;cursor:pointer;line-height:1}
+    #layerGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 8px}
+    .lyr{border:0;background:none;font:inherit;font-size:.74rem;color:#5f6368;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer}
+    .lyr img{width:60px;height:60px;border-radius:10px;object-fit:cover;border:2px solid transparent;background:#e8eaed}
+    .lyr.on{color:#1a73e8}.lyr.on img{border-color:#1a73e8}
+    .scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1190;opacity:0;pointer-events:none;transition:opacity .2s}
+    .scrim.open{opacity:1;pointer-events:auto}
+    .drawer{position:fixed;top:0;bottom:0;left:0;width:290px;max-width:82vw;background:#fff;z-index:1200;transform:translateX(-102%);transition:transform .22s;box-shadow:2px 0 12px rgba(0,0,0,.25);padding-top:env(safe-area-inset-top);overflow-y:auto}
+    .drawer.open{transform:none}
+    .dr-head{display:flex;gap:12px;align-items:center;padding:18px 16px;border-bottom:1px solid #e8eaed;font-size:.95rem}
+    .dr-head small{display:block;color:#5f6368;margin-top:2px}.dr-head>span{font-size:1.6rem}
+    .dr-item{display:flex;width:100%;align-items:center;gap:16px;padding:13px 20px;border:0;background:none;font:inherit;font-size:.95rem;color:#202124;text-align:left;cursor:pointer}
+    .dr-item:active,.dr-item.active{background:#e8f0fe;color:#1a73e8}.dr-item span{width:24px;text-align:center}
+    .drawer hr{border:0;border-top:1px solid #e8eaed;margin:6px 0}
+    .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:#323232;color:#fff;padding:10px 16px;border-radius:8px;font-size:.85rem;z-index:1300;opacity:0;pointer-events:none;transition:.2s;max-width:86vw;text-align:center}
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+    .install-bar{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:1250;background:#fff;border-radius:16px;box-shadow:0 4px 18px rgba(60,64,67,.4);padding:10px 8px 10px 14px;display:none;align-items:center;gap:6px;font-size:.85rem;color:#202124;max-width:520px}
+    .install-bar.open{display:flex}.install-bar p{flex:1;line-height:1.35}
+    .install-bar button{border:0;background:none;font:inherit;font-weight:600;color:#1a73e8;padding:8px 10px;cursor:pointer;border-radius:8px}
+    .install-bar #installNo{color:#5f6368}
+    .me{position:relative;width:22px;height:22px}
+    .me b{position:absolute;inset:3px;background:#1a73e8;border:3px solid #fff;border-radius:50%;box-shadow:0 0 4px rgba(0,0,0,.4)}
+    .me .cone{display:none;position:absolute;left:-14px;top:-14px;width:50px;height:50px;transform:rotate(var(--h,0deg));background:conic-gradient(from -30deg,rgba(26,115,232,.55) 0 60deg,transparent 60deg);-webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%)}
+    .me.hd .cone{display:block}
 
     /* Ward name labels at polygon centers */
     .ward-label {
@@ -204,90 +156,209 @@
 
     /* Hide default leaflet attribution a bit */
     .leaflet-control-attribution { font-size: 9px !important; }
+    .side-panel{top:calc(70px + env(safe-area-inset-top));right:auto;left:12px;z-index:1050;max-height:calc(100% - 130px);width:300px}
+    .side-panel h2 .x{float:right;border:0;background:none;color:#fff;font-size:1.3rem;line-height:1;cursor:pointer}
+    .add-pin-hint{bottom:calc(90px + env(safe-area-inset-bottom))}
   </style>
 </head>
 <body>
-  <!-- Compact top bar -->
-  <div class="topbar">
-    <h1>മൂത്തേടം</h1>
-    <div class="search-wrap" id="searchWrap">
-      <input type="search" id="searchInput" placeholder="Ward, member, house, place..." autocomplete="off" />
-      <button class="clear-btn" id="searchClear" title="Clear">×</button>
-      <div class="search-results" id="searchResults"></div>
-    </div>
-    <div class="btn-group">
-      <button class="icon-btn" id="btnNotes" title="Notes">📝</button>
-      <button class="icon-btn" id="btnExport" title="Export notes">⬇️</button>
-      <button class="icon-btn" id="btnImport" title="Import notes">⬆️</button>
-      <input type="file" id="importFile" accept=".json" style="display:none" />
-    </div>
-  </div>
-
   <div id="map"></div>
 
-  <!-- Floating action buttons (Google Maps style) -->
-  <div class="fab-stack">
-    <button class="icon-btn locate-btn" id="btnLocate" title="My Location" aria-label="My Location">
-      <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
-      </svg>
-    </button>
-    <button class="icon-btn" id="btnAddPin" title="Add Note / Pin" aria-label="Drop Pin">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="#ea4335" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-      </svg>
-    </button>
+  <div class="searchbar" id="searchWrap">
+    <button class="sb-btn" id="btnMenu" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg></button>
+    <input type="search" id="searchInput" placeholder="Ward, member, house, place തിരയുക" autocomplete="off" />
+    <button class="sb-btn clear-btn" id="searchClear" aria-label="Clear"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+    <button class="sb-btn search-ic" id="btnSearchGo" aria-label="Search"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></button>
+    <div class="search-results" id="searchResults"></div>
   </div>
+
+  <button class="fab layers-btn" id="btnLayers" aria-label="Map type"><svg viewBox="0 0 24 24"><path d="M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z"/></svg></button>
+  <div class="layer-sheet" id="layerSheet"><h3>Map type <button id="layerClose" aria-label="Close">×</button></h3><div id="layerGrid"></div></div>
+
+  <div class="fab-stack">
+    <button class="fab" id="btnShare" title="Share location" aria-label="Share location"><svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg></button>
+    <button class="fab" id="btnCompass" title="Compass" aria-label="Compass"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#bdc1c6" stroke-width="1.4"/><g id="needle"><path d="M12 4l3.4 8H8.6z" fill="#ea4335"/><path d="M12 20l-3.4-8h6.8z" fill="#9aa0a6"/></g><circle cx="12" cy="12" r="1.5" fill="#fff"/></svg></button>
+    <button class="fab" id="btnLocate" title="My location" aria-label="My location"><svg viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg></button>
+  </div>
+
+  <div class="scrim" id="scrim"></div>
+  <aside class="drawer" id="drawer">
+    <div class="dr-head"><span>📍</span><div><b>മൂത്തേടം ഗ്രാമപഞ്ചായത്ത്</b><small>Interactive Map</small></div></div>
+    <button class="dr-item" id="btnOffice"><span>🏛️</span>Panchayat Office</button>
+    <button class="dr-item" id="btnAddPin"><span>📌</span>Pin ഇടുക</button>
+    <button class="dr-item" id="btnNotes"><span>📝</span>Saved pins / notes</button>
+    <hr>
+    <button class="dr-item" id="btnExport"><span>⬇️</span>Export notes</button>
+    <button class="dr-item" id="btnImport"><span>⬆️</span>Import notes</button>
+    <button class="dr-item" id="btnInstall" style="display:none"><span>📲</span>Install app</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" />
+  </aside>
+
+  <div class="toast" id="toast"></div>
+  <div class="install-bar" id="installBar"><p id="installMsg"></p><button id="installYes">Install</button><button id="installNo">Later</button></div>
 
   <div class="add-pin-hint" id="pinHint">📌 Pin mode ON — map-ൽ tap ചെയ്ത് pin ഇടുക (Cancel: pin button വീണ്ടും press ചെയ്യുക)</div>
 
   <div class="side-panel" id="notesPanel">
-    <h2>📌 Saved Notes / Pins</h2>
+    <h2>📌 Saved Notes / Pins <button class="x" onclick="this.closest('.side-panel').classList.remove('open')">×</button></h2>
     <div class="body" id="notesList">
       <p style="color:#777;font-size:0.85rem">No notes yet. Use 📌 button.</p>
     </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.js"></script>
-  <script>
+    <script>
     // Base layers
     const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OSM' });
     const googleRoad = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, attribution: '© Google' });
     const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', { maxZoom: 20, attribution: '© Google' });
     const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: '© Esri' });
 
-    const map = L.map('map', {
-      center: [11.333, 76.326],
-      zoom: 13,
-      layers: [googleHybrid],
-      zoomControl: false,
-      attributionControl: true
-    });
+    const googleTerrain = L.tileLayer('https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', { maxZoom: 20, attribution: '© Google' });
+    // Moothedam Grama Panchayat Office (Karappuram) — approximate; change these two numbers to the exact office pin if needed
+    const OFFICE = [11.3313, 76.3379];
+    const LS = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+    const $ = id => document.getElementById(id);
+    const BASES = [
+      { name: 'Default', layer: googleRoad }, { name: 'Satellite', layer: googleHybrid }, { name: 'Terrain', layer: googleTerrain },
+      { name: 'OSM', layer: osm }, { name: 'Esri', layer: esriSat }
+    ];
+    let baseIdx = parseInt(LS.get('moothedam_base'), 10);
+    if (!BASES[baseIdx]) baseIdx = 1;
+
+    const map = L.map('map', { center: OFFICE, zoom: 16, layers: [BASES[baseIdx].layer], zoomControl: false, attributionControl: false });
     L.control.zoom({ position: 'bottomright' }).addTo(map);
-    L.control.layers({
-      "Google Hybrid": googleHybrid,
-      "Google Road": googleRoad,
-      "OpenStreetMap": osm,
-      "Esri Satellite": esriSat
-    }, null, { position: 'topright' }).addTo(map);
+    L.control.attribution({ position: 'bottomleft', prefix: false }).addTo(map);
 
-    // Locate control (hidden, we use our own button)
-    const locateControl = L.control.locate({
-      position: 'bottomright',
-      strings: { title: "Show my location" },
-      locateOptions: { enableHighAccuracy: true, maxZoom: 16 },
-      flyTo: true,
-      showPopup: false,
-      markerStyle: { color: '#1a73e8', fillColor: '#4285f4' },
-      circleStyle: { color: '#1a73e8', fillColor: '#4285f4', fillOpacity: 0.15 }
+    let toastT;
+    function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2800); }
+
+    // ----- Office marker (map opens here) -----
+    const officeMarker = L.marker(OFFICE, {
+      zIndexOffset: 500,
+      icon: L.divIcon({ className: '', iconSize: [34, 44], iconAnchor: [17, 44],
+        html: '<svg viewBox="0 0 24 36" width="34" height="44" style="filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))"><path fill="#1a73e8" stroke="#fff" stroke-width="1.2" d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24C24 5.4 18.6 0 12 0z"/><path fill="#fff" d="M12 5l6 3v1H6V8zm-5 5h2v5H7zm4 0h2v5h-2zm4 0h2v5h-2zM6 16h12v1.5H6z"/></svg>' })
+    }).addTo(map).bindPopup(`<div class="popup-content"><h3>മൂത്തേടം ഗ്രാമപഞ്ചായത്ത് ഓഫീസ്</h3><div class="popup-row"><span>Moothedam Grama Panchayat Office</span></div><button class="nav-btn" onclick="navigateTo(${OFFICE[0]}, ${OFFICE[1]})">🧭 Navigate</button></div>`);
+
+    // ----- Map type (base layer) selector -----
+    function thumb(layer) {
+      const z = 13, n = 2 ** z, r = OFFICE[0] * Math.PI / 180;
+      const x = Math.floor((OFFICE[1] + 180) / 360 * n), y = Math.floor((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n);
+      return L.Util.template(layer._url, { s: 'a', x, y, z });
+    }
+    $('layerGrid').innerHTML = BASES.map((b, i) => `<button class="lyr${i === baseIdx ? ' on' : ''}" data-i="${i}"><img src="${thumb(b.layer)}" alt="" loading="lazy"><span>${b.name}</span></button>`).join('');
+    $('layerGrid').onclick = e => {
+      const b = e.target.closest('.lyr'); if (!b) return;
+      const i = +b.dataset.i;
+      map.removeLayer(BASES[baseIdx].layer); BASES[i].layer.addTo(map).bringToBack();
+      baseIdx = i; LS.set('moothedam_base', i);
+      $('layerGrid').querySelectorAll('.lyr').forEach((el, j) => el.classList.toggle('on', j === i));
+    };
+    $('btnLayers').onclick = e => { e.stopPropagation(); $('layerSheet').classList.toggle('open'); };
+    $('layerClose').onclick = () => $('layerSheet').classList.remove('open');
+    document.addEventListener('click', e => { if (!$('layerSheet').contains(e.target)) $('layerSheet').classList.remove('open'); });
+
+    // ----- GPS location -----
+    let watchId = null, me = null, meDot = null, meAcc = null;
+    const meIcon = L.divIcon({ className: '', iconSize: [22, 22], iconAnchor: [11, 11], html: '<div class="me"><i class="cone"></i><b></b></div>' });
+    function onPos(p, fly) {
+      me = L.latLng(p.coords.latitude, p.coords.longitude);
+      if (!meDot) {
+        meAcc = L.circle(me, { radius: p.coords.accuracy, color: '#1a73e8', weight: 1, fillColor: '#4285f4', fillOpacity: .15, interactive: false }).addTo(map);
+        meDot = L.marker(me, { icon: meIcon, interactive: false, zIndexOffset: 1000 }).addTo(map);
+      } else { meDot.setLatLng(me); meAcc.setLatLng(me).setRadius(p.coords.accuracy); }
+      if (fly) map.flyTo(me, Math.max(map.getZoom(), 17));
+    }
+    $('btnLocate').onclick = () => {
+      if (!navigator.geolocation) return toast('ഈ device-ൽ GPS support ഇല്ല');
+      if (watchId != null) { if (me) map.flyTo(me, Math.max(map.getZoom(), 17)); return; }
+      let first = true;
+      $('btnLocate').classList.add('busy');
+      watchId = navigator.geolocation.watchPosition(p => {
+        $('btnLocate').classList.remove('busy'); $('btnLocate').classList.add('on');
+        onPos(p, first); first = false;
+      }, err => {
+        $('btnLocate').classList.remove('busy');
+        navigator.geolocation.clearWatch(watchId); watchId = null;
+        toast(err.code === 1 ? 'Location permission allow ചെയ്യണം' : 'Location കിട്ടിയില്ല, വീണ്ടും ശ്രമിക്കൂ');
+      }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
+    };
+
+    // ----- Share location -----
+    const getPosOnce = () => new Promise((res, rej) => navigator.geolocation
+      ? navigator.geolocation.getCurrentPosition(p => res(L.latLng(p.coords.latitude, p.coords.longitude)), rej, { enableHighAccuracy: true, timeout: 15000 }) : rej());
+    $('btnShare').onclick = async () => {
+      let ll = me;
+      if (!ll) {
+        toast('Location എടുക്കുന്നു…');
+        try { ll = await getPosOnce(); } catch (e) { ll = map.getCenter(); toast('GPS കിട്ടിയില്ല — map center share ചെയ്യുന്നു'); }
+      }
+      const url = `https://www.google.com/maps?q=${ll.lat.toFixed(6)},${ll.lng.toFixed(6)}`;
+      if (navigator.share) { try { await navigator.share({ title: 'My location', text: 'My location', url }); return; } catch (e) { if (e.name === 'AbortError') return; } }
+      try { await navigator.clipboard.writeText(url); toast('Location link copy ചെയ്തു'); } catch (e) { prompt('Location link:', url); }
+    };
+
+    // ----- Compass (device heading) -----
+    let compassOn = false;
+    function onOrient(e) {
+      let h = e.webkitCompassHeading != null ? e.webkitCompassHeading
+            : ((e.absolute || e.type === 'deviceorientationabsolute') && e.alpha != null) ? 360 - e.alpha : null;
+      if (h == null) return;
+      h = (h + ((screen.orientation && screen.orientation.angle) || 0)) % 360;
+      $('needle').style.transform = `rotate(${-h}deg)`;
+      const m = meDot && meDot.getElement() && meDot.getElement().querySelector('.me');
+      if (m) { m.classList.add('hd'); m.style.setProperty('--h', h + 'deg'); }
+    }
+    $('btnCompass').onclick = async () => {
+      if (compassOn) {
+        compassOn = false; $('btnCompass').classList.remove('on'); $('needle').style.transform = '';
+        window.removeEventListener('deviceorientationabsolute', onOrient, true); window.removeEventListener('deviceorientation', onOrient, true);
+        const m = meDot && meDot.getElement() && meDot.getElement().querySelector('.me'); if (m) m.classList.remove('hd');
+        return;
+      }
+      try {
+        if (typeof DeviceOrientationEvent !== 'undefined' && DeviceOrientationEvent.requestPermission) {
+          if (await DeviceOrientationEvent.requestPermission() !== 'granted') return toast('Compass permission allow ചെയ്യണം');
+        }
+      } catch (e) { return toast('Compass ലഭ്യമല്ല'); }
+      if (!('ondeviceorientation' in window)) return toast('ഈ device-ൽ compass ഇല്ല');
+      compassOn = true; $('btnCompass').classList.add('on');
+      window.addEventListener('deviceorientationabsolute', onOrient, true); window.addEventListener('deviceorientation', onOrient, true);
+      toast('Compass ON — phone തിരിക്കുമ്പോൾ needle തിരിയും');
+    };
+
+    // ----- Menu drawer -----
+    const openDrawer = () => { $('drawer').classList.add('open'); $('scrim').classList.add('open'); };
+    const closeDrawer = () => { $('drawer').classList.remove('open'); $('scrim').classList.remove('open'); };
+    $('btnMenu').onclick = openDrawer; $('scrim').onclick = closeDrawer;
+    $('drawer').addEventListener('click', e => { if (e.target.closest('.dr-item')) closeDrawer(); });
+    $('btnOffice').onclick = () => { map.flyTo(OFFICE, 17); setTimeout(() => officeMarker.openPopup(), 600); };
+    $('btnSearchGo').onclick = () => $('searchInput').focus();
+
+    // ----- PWA install request -----
+    let deferred = null;
+    const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+    const touchDev = matchMedia('(pointer:coarse)').matches;
+    const snoozed = () => (+LS.get('moothedam_install_snooze') || 0) > Date.now();
+    function bar(on, msg, canInstall) {
+      if (on && (standalone || snoozed() || !touchDev)) return;
+      if (msg) $('installMsg').innerHTML = msg;
+      $('installYes').style.display = canInstall ? '' : 'none';
+      $('installBar').classList.toggle('open', on); document.body.classList.toggle('ib', on);
+    }
+    async function doInstall() {
+      if (!deferred) return;
+      bar(false); deferred.prompt(); await deferred.userChoice; deferred = null; $('btnInstall').style.display = 'none';
+    }
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault(); deferred = e; $('btnInstall').style.display = '';
+      setTimeout(() => bar(true, '<b>Moothedam Map</b> app ആയി install ചെയ്യൂ — home screen-ൽ നിന്ന് ഉടൻ തുറക്കാം', true), 2500);
     });
-    // keep it in DOM but we trigger via our button
-    locateControl.addTo(map);
-    // hide the default locate button
-    document.querySelector('.leaflet-control-locate')?.style.setProperty('display', 'none');
-
-    document.getElementById('btnLocate').onclick = () => locateControl.start();
+    window.addEventListener('appinstalled', () => { bar(false); $('btnInstall').style.display = 'none'; });
+    $('installYes').onclick = doInstall; $('btnInstall').onclick = doInstall;
+    $('installNo').onclick = () => { bar(false); LS.set('moothedam_install_snooze', Date.now() + 7 * 864e5); };
+    if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone) setTimeout(() => bar(true, 'iPhone-ൽ install ചെയ്യാൻ: <b>Share</b> ⬆️ → <b>Add to Home Screen</b>', false), 3000);
+    if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 
     // Colors for individual wards (when ward polygons with ward_no exist)
     const boundaryColors = ['#e53935', '#1e88e5', '#43a047', '#8e24aa', '#fb8c00', '#00acc1', '#d81b60', '#5e35b1'];
@@ -449,7 +520,6 @@
         map.on('zoomend', refreshLabels);
         refreshLabels();
 
-        map.fitBounds(wardsLayer.getBounds(), { padding: [36, 36], maxZoom: 14 });
       })
       .catch(e => console.error('Wards/Boundary error:', e));
 
