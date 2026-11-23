@@ -69,7 +69,7 @@ Made with Leaflet.
 
 ## Google-Maps style UI & PWA
 
-- Opens at the Panchayat Office (`OFFICE` constant in `index.html` — set exact lat/lng there)
+- Opens at the Panchayat Office (`OFFICE` constant in `index.html` holds the exact lat/lng)
 - Search bar + menu (pins, export/import), map type selector, share location, compass, GPS
 - On mobile an "Install app" prompt appears (Android Chrome); iPhone: Share → Add to Home Screen
 - After updating files, bump `CACHE` in `sw.js` so phones pick up the new version
